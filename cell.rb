@@ -2,10 +2,12 @@
 #
 
 class Cell
-  attr_reader :state
+  attr_reader :state, :decease, :rebirth
   def initialize(position, state)
     @position = position
     @state = state
+    @decease = false
+    @rebirth = false
   end
 
   def evaluateOf(neighbors)
@@ -18,6 +20,8 @@ class Cell
   end
 
   def purgeOf(newState)
+    @decease = @state == 1 && newState == 0
+    @rebirth = @state == 0 && newState == 1
     @state = newState
   end
 

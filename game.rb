@@ -16,7 +16,7 @@ end
 def start(board)
   generation = 0
    while true
-     puts "Generacion: #{generation}"
+     puts "\nGeneracion: #{generation}"
      board.printBoard
      sleep 0.7
      board.iterationOf(generation)
