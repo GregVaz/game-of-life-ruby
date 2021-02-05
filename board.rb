@@ -2,10 +2,12 @@
 require_relative "cell"
 
 class Board
-  attr_reader :board
-  def initialize(rows = 5, cols = 5)
+  attr_reader :board, :status
+  def initialize(rows = 8, cols = 8)
     @rows = rows
     @cols = cols
+    @status = :alive
+    @generations = Array.new
     @board = Array.new(rows) { |i|
       Array.new(cols) { |j|
         Cell.new([i,j], rand(0..1).to_i)
@@ -13,12 +15,21 @@ class Board
     }
   end
 
-  def iterationOf
+  def iterationOf(gen)
     temp = @board.map(&:clone)
+    iter_neighbors = 0
+    cells_alive = 0
     (0...@rows).each do |i|
-      (0...@cols).each do |j| 
-        @board[i][j].evaluateOf(evaluateOf(i, j))
+      (0...@cols).each do |j|
+        nb = evaluateOf(i,j)
+        iter_neighbors += nb
+        temp[i][j].evaluateOf(nb)
+        cells_alive += 1 if temp[i][j].aliveOf
       end
+    end
+    @generations.push(cells_alive)
+    if iter_neighbors == 0
+      @status = :death
     end
     @board = temp
   end
@@ -42,10 +53,18 @@ class Board
     puts "- " * @cols
     for i in (0...@rows)
       for j in (0...@cols)
-        print "#{@board[i][j].state} "
+        print "#{'#' if @board[i][j].state == 1} "
       end
       puts ""
     end
+  end
+
+  def boardStatus
+    puts "3 ultimas generaciones de celulas: #{@generations.last(3)}"
+    if @generations.length > 2 && @generations.last(3).uniq.length == 1
+      @status = :cycle
+    end
+    @status
   end
 end
 
