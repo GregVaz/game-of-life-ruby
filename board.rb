@@ -2,7 +2,7 @@
 require_relative "cell"
 
 class Board
-  attr_reader :board, :status, :decease
+  attr_reader :status
   def initialize(rows = 8, cols = 8)
     @rows = rows
     @cols = cols
@@ -10,59 +10,62 @@ class Board
     @generations = Array.new
     @births = Array.new
     @deceases = Array.new
-    @board = Array.new(rows) { |i|
-      Array.new(cols) { |j|
-        Cell.new([i,j], rand(0..1).to_i)
-      }
-    }
+    @board = create_board
   end
 
-  def iterationOf(gen)
-    temp = @board.map(&:clone)
-    iter_neighbors = 0
-    cells_alive = 0
-    deceases = 0
-    rebirths = 0
+  def create_board
+    Array.new(@rows) { Array.new(@cols) { Cell.new } }
+  end
+
+  def iterationOf
+    next_board = @board.map(&:clone)
+    iteration_state = Hash.new(0)
     (0...@rows).each do |i|
       (0...@cols).each do |j|
-        nb = evaluateOf(i,j)
-        iter_neighbors += nb
-        temp[i][j].evaluateOf(nb)
-        cells_alive += 1 if temp[i][j].aliveOf
-        deceases += 1 if temp[i][j].decease
-        rebirths += 1 if temp[i][j].rebirth
+        count_neighbors = neighbors_counter(i,j)
+        next_board[i][j].evaluate_state(count_neighbors)
+        iteration_state[:neighbors] += count_neighbors
+        iteration_state[:cells_alive] += 1 if next_board[i][j].alive?
+        iteration_state[:deceases] += 1 if next_board[i][j].decease
+        iteration_state[:rebirths] += 1 if next_board[i][j].rebirth
       end
     end
-    @generations.push(cells_alive)
-    @deceases.push(deceases)
-    @births.push(rebirths)
-    if iter_neighbors == 0
-      @status = :death
-    end
-    @board = temp
+    update_iteration_board(iteration_state)
+    @board = next_board
   end
 
-  def evaluateOf(i, j)
-    @neighbors = 0
-    ir_lim = i + 1 == @rows ? 0 : 1
-    jr_lim = j + 1 == @cols ? 0 : 1
-    il_lim = i - 1 < 0 ? 0 : -1
-    jl_lim = j - 1 < 0 ? 0 : -1
-    (il_lim..ir_lim).each do |ix|
-      (jl_lim..jr_lim).each do |jx|
-        @neighbors += @board[i+ix][j+jx].state
+  def update_iteration_board(iteration_state)
+    @generations.push(iteration_state[:cells_alive])
+    @deceases.push(iteration_state[:deceases])
+    @births.push(iteration_state[:rebirths])
+    @status = :death if iteration_state[:neighbors] == 0 
+  end
+
+  def neighbors_counter(i, j)
+    neighbors = 0
+    limits = round_limits(i,j)
+    (limits[:i_left_limit]..limits[:i_rigth_limit]).each do |ix|
+      (limits[:j_left_limit]..limits[:j_rigth_limit]).each do |jx|
+        neighbors += 1 if @board[i+ix][j+jx].alive?
       end
     end
-    @neighbors -= @board[i][j].state
-    return @neighbors
+    neighbors -= 1 if @board[i][j].alive?
+    neighbors
+  end
+
+  def round_limits(i, j)
+    {
+      i_rigth_limit: i + 1 == @rows ? 0 : 1,
+      j_rigth_limit: j + 1 == @cols ? 0 : 1,
+      i_left_limit: i - 1 < 0 ? 0 : -1,
+      j_left_limit: j - 1 < 0 ? 0 : -1
+    }
   end
 
   def printBoard
     puts "- " * @cols
-    for i in (0...@rows)
-      for j in (0...@cols)
-        print "#{@board[i][j].state == 1 ? "# " : "  "}"
-      end
+    @rows.times do |i|
+      @cols.times { |j| print "#{@board[i][j].alive? ? "■ " : ". "}" }
       puts ""
     end
     puts "- " * @cols
