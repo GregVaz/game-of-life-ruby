@@ -17,7 +17,7 @@ class Board
     Array.new(@rows) { Array.new(@cols) { Cell.new } }
   end
 
-  def iterationOf
+  def generation
     next_board = @board.map(&:clone)
     iteration_state = Hash.new(0)
     (0...@rows).each do |i|
@@ -62,7 +62,7 @@ class Board
     }
   end
 
-  def printBoard
+  def print_board
     puts "- " * @cols
     @rows.times do |i|
       @cols.times { |j| print "#{@board[i][j].alive? ? "■ " : ". "}" }
@@ -71,7 +71,7 @@ class Board
     puts "- " * @cols
   end
 
-  def boardStatus
+  def board_status
     puts "3 ultimas generaciones de celulas: #{@generations.last(3)}"
     puts "3 ultimas generaciones de muertes: #{@deceases.last(3)}"
     puts "3 ultimas generaciones de nacimientos: #{@births.last(3)}"

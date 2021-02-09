@@ -6,27 +6,28 @@ require_relative "board"
 puts "Bienvenido al juego de la vida"
 
 def launch_menu
-  puts "Selecciona una de las siguientes opciones para iniciar el juego"
-  puts "(1) Juego por defecto (tablero 8*8)"
-  puts "(2) Juego personalizado"
-  puts "(3) Salir del juego"
-  print "Opcion: "
+  puts "Choose one of the next options to continue"
+  puts "(1) Default game (board 8*8)"
+  puts "(2) Choose rows and cols for the board"
+  puts "(3) Exit the game"
+  print "Option: "
   option = gets.chomp.to_i
   [1,2,3].include?(option) ? menu_option(option) : launch_menu
 end
 
 def menu_option(option)
-  if option == 1
+  case option
+  when 1
     board = Board.new
     start(board)
-  elsif option == 2
-    print "Cantidad de filas: "
+  when 2
+    print "Number of rows: "
     rows = gets
-    print "Cantidad de columnas: "
+    print "Number of columns: "
     cols = gets
     board = Board.new(rows.to_i, cols.to_i)
     start(board)
-  elsif option == 3
+  when 3
     raise SystemExit
   end
 end
@@ -34,17 +35,17 @@ end
 def start(board)
   generation = 0
   while board.status == :alive
-     puts "\nGeneracion: #{generation}"
-     board.printBoard
+     puts "\nGeneration: #{generation}"
+     board.print_board
      sleep 0.7
-     board.iterationOf
-     board.boardStatus 
+     board.generation
+     board.board_status 
      generation += 1
   end
   if board.status == :death
-    puts "\nNo hay sobrevivientes\n"
+    puts "\nThere is no survivals\n"
   elsif board.status == :cycle
-    puts "\nSe han vuelto inmortales\n"
+    puts "\nThey have become inmortals\n"
   end
 end
 
