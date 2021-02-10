@@ -26,8 +26,8 @@ class Board
         next_board[i][j].evaluate_state(count_neighbors)
         iteration_state[:neighbors] += count_neighbors
         iteration_state[:cells_alive] += 1 if next_board[i][j].alive?
-        iteration_state[:deceases] += 1 if next_board[i][j].decease
-        iteration_state[:rebirths] += 1 if next_board[i][j].rebirth
+        iteration_state[:deceases] += 1 if next_board[i][j].die?
+        iteration_state[:rebirths] += 1 if next_board[i][j].reborn?
       end
     end
     update_iteration_board(iteration_state)

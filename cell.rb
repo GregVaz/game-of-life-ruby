@@ -1,12 +1,11 @@
 # class Cell
-#
-
+# 
 class Cell
-  attr_reader :decease, :rebirth
+  
   def initialize
     @state = rand(0..1).to_i
     @decease = false
-    @rebirth = false
+    @reborn = false
   end
 
   def evaluate_state(neighbors)
@@ -19,7 +18,7 @@ class Cell
 
   def set_state(new_state)
     @decease = @state == 1 && new_state == 0
-    @rebirth = @state == 0 && new_state == 1
+    @reborn = @state == 0 && new_state == 1
     @state = new_state
   end
 
@@ -27,4 +26,11 @@ class Cell
     @state == 1
   end
 
+  def reborn?
+    @rebirth
+  end
+
+  def die?
+    @decease
+  end
 end
