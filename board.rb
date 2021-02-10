@@ -1,5 +1,6 @@
 ### Conway's Game of Life
 require_relative "cell"
+require_relative "statistics"
 
 class Board
   attr_reader :status
@@ -7,10 +8,8 @@ class Board
     @rows = rows
     @cols = cols
     @status = :alive
-    @generations = Array.new
-    @births = Array.new
-    @deceases = Array.new
     @board = create_board
+    @stats = Statistics.new
   end
 
   def create_board
@@ -19,26 +18,15 @@ class Board
 
   def generation
     next_board = @board.map(&:clone)
-    iteration_state = Hash.new(0)
     (0...@rows).each do |i|
       (0...@cols).each do |j|
-        count_neighbors = neighbors_counter(i,j)
-        next_board[i][j].evaluate_state(count_neighbors)
-        iteration_state[:neighbors] += count_neighbors
-        iteration_state[:cells_alive] += 1 if next_board[i][j].alive?
-        iteration_state[:deceases] += 1 if next_board[i][j].die?
-        iteration_state[:rebirths] += 1 if next_board[i][j].reborn?
+        cell = next_board[i][j]
+        cell.evaluate_state(neighbors_counter(i,j))
+        @stats.count_generation_stats(cell.alive?, cell.reborn?, cell.die?)
       end
     end
-    update_iteration_board(iteration_state)
+    @stats.update_generation_results
     @board = next_board
-  end
-
-  def update_iteration_board(iteration_state)
-    @generations.push(iteration_state[:cells_alive])
-    @deceases.push(iteration_state[:deceases])
-    @births.push(iteration_state[:rebirths])
-    @status = :death if iteration_state[:neighbors] == 0 
   end
 
   def neighbors_counter(i, j)
@@ -72,14 +60,10 @@ class Board
   end
 
   def board_status
-    puts "3 ultimas generaciones de celulas: #{@generations.last(3)}"
-    puts "3 ultimas generaciones de muertes: #{@deceases.last(3)}"
-    puts "3 ultimas generaciones de nacimientos: #{@births.last(3)}"
-    mortality = (@deceases.last.to_f / @generations.last.to_f) * 100
-    natality = (@births.last.to_f / @generations.last.to_f) * 100
-    puts "Tasa de mortalidad: #{mortality.round(2)}%"
-    puts "Tasa de natalidad: #{natality.round(2)}%"
-    if @generations.length > 2 && @generations.last(3).uniq.length == 1
+    @stats.print_stats
+    if @stats.last_alive_cells_generations(1) == 0
+      @status = :death
+    elsif @stats.generations.length > 3 && @stats.last_alive_cells_generations.uniq.length == 1
       @status = :cycle
     end
     @status

@@ -27,7 +27,7 @@ class Cell
   end
 
   def reborn?
-    @rebirth
+    @reborn
   end
 
   def die?
