@@ -1,32 +1,40 @@
 # class Cell
-#
-
+# 
 class Cell
-  attr_reader :state, :decease, :rebirth
-  def initialize(position, state)
-    @position = position
-    @state = state
+  
+  def initialize
+    @state = rand(0..1).to_i
     @decease = false
-    @rebirth = false
+    @reborn = false
   end
 
-  def evaluateOf(neighbors)
-    nb = neighbors
-    if nb > 3 || nb < 2
-      purgeOf(0)
-    elsif nb == 3
-      purgeOf(1)
+  def evaluate_state(neighbors)
+    if neighbors > 3 || neighbors < 2
+      set_state(0)
+    elsif neighbors == 3
+      set_state(1)
     end
   end
 
-  def purgeOf(newState)
-    @decease = @state == 1 && newState == 0
-    @rebirth = @state == 0 && newState == 1
-    @state = newState
+  def set_state(new_state)
+    @decease = @state == 1 && new_state == 0
+    @reborn = @state == 0 && new_state == 1
+    @state = new_state
   end
 
-  def aliveOf
+  def alive?
     @state == 1
   end
 
+  def reborn?
+    @reborn
+  end
+
+  def die?
+    @decease
+  end
+
+  def to_s
+    @state == 1 ? "■ " : ". "
+  end
 end

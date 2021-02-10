@@ -1,82 +1,69 @@
 ### Conway's Game of Life
 require_relative "cell"
+require_relative "statistics"
 
 class Board
-  attr_reader :board, :status, :decease
+  attr_reader :status
   def initialize(rows = 8, cols = 8)
     @rows = rows
     @cols = cols
     @status = :alive
-    @generations = Array.new
-    @births = Array.new
-    @deceases = Array.new
-    @board = Array.new(rows) { |i|
-      Array.new(cols) { |j|
-        Cell.new([i,j], rand(0..1).to_i)
-      }
+    @board = create_board
+    @stats = Statistics.new
+  end
+
+  def create_board
+    Array.new(@rows) { Array.new(@cols) { Cell.new } }
+  end
+
+  def generation
+    next_board = @board.map(&:clone)
+    (0...@rows).each do |i|
+      (0...@cols).each do |j|
+        cell = next_board[i][j]
+        cell.evaluate_state(neighbors_counter(i,j))
+        @stats.count_generation_stats(cell.alive?, cell.reborn?, cell.die?)
+      end
+    end
+    @stats.update_generation_results
+    @board = next_board
+  end
+
+  def neighbors_counter(i, j)
+    neighbors = 0
+    limits = round_limits(i,j)
+    (limits[:i_left_limit]..limits[:i_rigth_limit]).each do |ix|
+      (limits[:j_left_limit]..limits[:j_rigth_limit]).each do |jx|
+        neighbors += 1 if @board[i+ix][j+jx].alive?
+      end
+    end
+    neighbors -= 1 if @board[i][j].alive?
+    neighbors
+  end
+
+  def round_limits(i, j)
+    {
+      i_rigth_limit: i + 1 == @rows ? 0 : 1,
+      j_rigth_limit: j + 1 == @cols ? 0 : 1,
+      i_left_limit: i - 1 < 0 ? 0 : -1,
+      j_left_limit: j - 1 < 0 ? 0 : -1
     }
   end
 
-  def iterationOf(gen)
-    temp = @board.map(&:clone)
-    iter_neighbors = 0
-    cells_alive = 0
-    deceases = 0
-    rebirths = 0
-    (0...@rows).each do |i|
-      (0...@cols).each do |j|
-        nb = evaluateOf(i,j)
-        iter_neighbors += nb
-        temp[i][j].evaluateOf(nb)
-        cells_alive += 1 if temp[i][j].aliveOf
-        deceases += 1 if temp[i][j].decease
-        rebirths += 1 if temp[i][j].rebirth
-      end
-    end
-    @generations.push(cells_alive)
-    @deceases.push(deceases)
-    @births.push(rebirths)
-    if iter_neighbors == 0
-      @status = :death
-    end
-    @board = temp
-  end
-
-  def evaluateOf(i, j)
-    @neighbors = 0
-    ir_lim = i + 1 == @rows ? 0 : 1
-    jr_lim = j + 1 == @cols ? 0 : 1
-    il_lim = i - 1 < 0 ? 0 : -1
-    jl_lim = j - 1 < 0 ? 0 : -1
-    (il_lim..ir_lim).each do |ix|
-      (jl_lim..jr_lim).each do |jx|
-        @neighbors += @board[i+ix][j+jx].state
-      end
-    end
-    @neighbors -= @board[i][j].state
-    return @neighbors
-  end
-
-  def printBoard
+  def print_board
     puts "- " * @cols
-    for i in (0...@rows)
-      for j in (0...@cols)
-        print "#{@board[i][j].state == 1 ? "# " : "  "}"
-      end
+    @rows.times do |i|
+      @cols.times { |j| print "#{@board[i][j]}" }
       puts ""
     end
     puts "- " * @cols
   end
 
-  def boardStatus
-    puts "3 ultimas generaciones de celulas: #{@generations.last(3)}"
-    puts "3 ultimas generaciones de muertes: #{@deceases.last(3)}"
-    puts "3 ultimas generaciones de nacimientos: #{@births.last(3)}"
-    mortality = (@deceases.last.to_f / @generations.last.to_f) * 100
-    natality = (@births.last.to_f / @generations.last.to_f) * 100
-    puts "Tasa de mortalidad: #{mortality.round(2)}%"
-    puts "Tasa de natalidad: #{natality.round(2)}%"
-    if @generations.length > 2 && @generations.last(3).uniq.length == 1
+  def board_status
+    @stats.print_stats
+    if @stats.generations.last == 0
+      @status = :death
+    elsif @stats.generations.length > 3 && @stats.generations.last(3).uniq.length == 1
       @status = :cycle
     end
     @status

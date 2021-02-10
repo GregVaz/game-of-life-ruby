@@ -3,49 +3,51 @@
 #
 require_relative "board"
 
-def menu 
-  puts "Bienvenido al juego de la vida"
-  puts "Selecciona una de las siguientes opciones para iniciar el juego"
-  puts "(1) Juego por defecto (tablero 8*8)"
-  puts "(2) Juego personalizado"
-  puts "(3) Salir del juego"
-  print "Opcion: "
-  option = gets
+puts "Bienvenido al juego de la vida"
+
+def launch_menu
+  puts "Choose one of the next options to continue"
+  puts "(1) Default game (board 8*8)"
+  puts "(2) Choose rows and cols for the board"
+  puts "(3) Exit the game"
+  print "Option: "
+  option = gets.chomp.to_i
+  [1,2,3].include?(option) ? menu_option(option) : launch_menu
+end
+
+def menu_option(option)
+  case option
+  when 1
+    board = Board.new
+    start(board)
+  when 2
+    print "Number of rows: "
+    rows = gets
+    print "Number of columns: "
+    cols = gets
+    board = Board.new(rows.to_i, cols.to_i)
+    start(board)
+  when 3
+    raise SystemExit
+  end
 end
 
 def start(board)
   generation = 0
-   while true
-     puts "\nGeneracion: #{generation}"
-     board.printBoard
+  while board.status == :alive
+     system 'clear'
+     puts "\nGeneration: #{generation}"
+     board.print_board
+     board.generation
+     board.board_status
      sleep 0.7
-     board.iterationOf(generation)
-     status = board.boardStatus
-     if status == :death
-       puts "\nNo hay sobrevivientes\n"
-       break
-     elsif status == :cycle
-       puts "\nSe han vuelto inmortales\n"
-       break
-     end
      generation += 1
+  end
+  if board.status == :death
+    puts "\nThere is no survivals\n"
+  elsif board.status == :cycle
+    puts "\nThey have become inmortals\n"
   end
 end
 
-option = menu.to_i
-fail ArgumentError if ![1,2,3].include?(option)
-if option == 1
-  board = Board.new
-  start(board)
-end
-if option == 2
-  print "Cantidad de filas: "
-  rows = gets
-  print "Cantidad de columnas: "
-  cols = gets
-  board = Board.new(rows.to_i, cols.to_i)
-  start(board)
-end
-if option == 3
-  raise SystemExit
-end
+launch_menu()
