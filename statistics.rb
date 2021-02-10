@@ -24,18 +24,6 @@ class Statistics
     set_generation_state
   end
 
-  def last_alive_cells_generations(generations = 3)
-    @generations.last(generations)
-  end
-
-  def last_death_cells_generations(generations = 3)
-    @deceases.last(generations)
-  end
-
-  def last_reborn_cells_generations(generations = 3)
-    @births.last(generations)
-  end
-
   def natality
     (@deceases.last.to_f / @generations.last.to_f) * 100
   end
@@ -45,9 +33,9 @@ class Statistics
   end
 
   def print_stats
-    puts "3 last generations of living cells: #{last_alive_cells_generations}"
-    puts "3 last generations of dead cells: #{last_death_cells_generations}"
-    puts "3 last generations of born cells: #{last_reborn_cells_generations}"
+    puts "3 last generations of living cells: #{@generations.last(3)}"
+    puts "3 last generations of dead cells: #{@deceases.last(3)}"
+    puts "3 last generations of born cells: #{@births.last(3)}"
     puts "Mortality rate: #{mortality.round(2)}%"
     puts "Natality rate: #{natality.round(2)}%"
   end

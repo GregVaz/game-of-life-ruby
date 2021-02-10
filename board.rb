@@ -61,9 +61,9 @@ class Board
 
   def board_status
     @stats.print_stats
-    if @stats.last_alive_cells_generations(1) == 0
+    if @stats.generations.last == 0
       @status = :death
-    elsif @stats.generations.length > 3 && @stats.last_alive_cells_generations.uniq.length == 1
+    elsif @stats.generations.length > 3 && @stats.generations.last(3).uniq.length == 1
       @status = :cycle
     end
     @status
