@@ -53,7 +53,7 @@ class Board
   def print_board
     puts "- " * @cols
     @rows.times do |i|
-      @cols.times { |j| print "#{@board[i][j].alive? ? "■ " : ". "}" }
+      @cols.times { |j| print "#{@board[i][j]}" }
       puts ""
     end
     puts "- " * @cols

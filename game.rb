@@ -35,11 +35,12 @@ end
 def start(board)
   generation = 0
   while board.status == :alive
+     system 'clear'
      puts "\nGeneration: #{generation}"
      board.print_board
-     sleep 0.7
      board.generation
-     board.board_status 
+     board.board_status
+     sleep 0.7
      generation += 1
   end
   if board.status == :death

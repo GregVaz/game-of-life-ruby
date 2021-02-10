@@ -33,4 +33,8 @@ class Cell
   def die?
     @decease
   end
+
+  def to_s
+    @state == 1 ? "■ " : ". "
+  end
 end
