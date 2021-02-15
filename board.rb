@@ -4,7 +4,7 @@ require_relative "statistics"
 
 class Board
   attr_reader :status
-  def initialize(rows = 8, cols = 8)
+  def initialize(rows, cols)
     @rows = rows
     @cols = cols
     @status = :alive

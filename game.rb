@@ -1,6 +1,4 @@
 # Controls of game
-#
-#
 require_relative "board"
 
 puts "Bienvenido al juego de la vida"
@@ -18,21 +16,20 @@ end
 def menu_option(option)
   case option
   when 1
-    board = Board.new
-    start(board)
+    start
   when 2
     print "Number of rows: "
-    rows = gets
+    rows = gets.chomp.to_i
     print "Number of columns: "
-    cols = gets
-    board = Board.new(rows.to_i, cols.to_i)
-    start(board)
+    cols = gets.chomp.to_i
+    start(rows, cols)
   when 3
     raise SystemExit
   end
 end
 
-def start(board)
+def start(rows = 8, cols = 8)
+  board = Board.new(rows, cols)
   generation = 0
   while board.status == :alive
      system 'clear'
@@ -50,4 +47,4 @@ def start(board)
   end
 end
 
-launch_menu()
+launch_menu
