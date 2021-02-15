@@ -11,10 +11,10 @@ class Statistics
     set_generation_state
   end
 
-  def count_generation_stats(alive, reborn, die) 
-    @generation_state[:cells_alive] += 1 if alive
-    @generation_state[:deceases] += 1 if die
-    @generation_state[:reborns] += 1 if reborn
+  def count_generation_stats(cell) 
+    @generation_state[:cells_alive] += 1 if cell.alive?
+    @generation_state[:deceases] += 1 if cell.die?
+    @generation_state[:reborns] += 1 if cell.reborn?
   end
 
   def update_generation_results

@@ -13,6 +13,8 @@ class Cell
       set_state(false)
     elsif neighbors == 3
       set_state(true)
+    else 
+      set_state(@state)
     end
   end
 

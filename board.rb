@@ -22,7 +22,7 @@ class Board
       (0...@cols).each do |j|
         cell = next_board[i][j]
         cell.evaluate_state(neighbors_counter(i,j))
-        @stats.count_generation_stats(cell.alive?, cell.reborn?, cell.die?)
+        @stats.count_generation_stats(cell)
       end
     end
     @stats.update_generation_results
